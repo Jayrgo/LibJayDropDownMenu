@@ -45,8 +45,6 @@ frame.gradient:SetGradientAlpha("VERTICAL", 0.1, 0.1, 0.1, 0, 0.25, 0.25, 0.25, 
 
 local open
 
-local PopupButtonMixin = {}
-
 local type = type
 ---@param info table
 ---@param key string
@@ -60,7 +58,7 @@ end
 
 local MouseIsOver = MouseIsOver
 ---@param self table
-local function UpdateFont(self)
+local function PopupButton_UpdateFont(self)
     if self:IsEnabled() then
         if MouseIsOver(self) then
             self.text:SetFontObject("GameFontHighlightSmallLeft")
@@ -74,31 +72,31 @@ local function UpdateFont(self)
 end
 
 ---@param self table
-local function OnEnable(self)
+local function PopupButton_OnEnable(self)
     self.arrow:SetDesaturated()
-    UpdateFont(self)
+    PopupButton_UpdateFont(self)
 end
 
 ---@param self table
-local function OnDisable(self)
+local function PopupButton_OnDisable(self)
     self.arrow:SetDesaturated()
-    UpdateFont(self)
+    PopupButton_UpdateFont(self)
 end
 
 ---@param self table
 ---@param motion boolean
-local function OnEnter(self, motion) UpdateFont(self) end
+local function PopupButton_OnEnter(self, motion) PopupButton_UpdateFont(self) end
 
 ---@param self table
 ---@param motion boolean
-local function OnLeave(self, motion) UpdateFont(self) end
+local function PopupButton_OnLeave(self, motion) PopupButton_UpdateFont(self) end
 
 local U_CHAT_SCROLL_BUTTON_SOUND = SOUNDKIT.U_CHAT_SCROLL_BUTTON
 local PlaySound = PlaySound
 ---@param self table
 ---@param button string
 ---@param down boolean
-local function OnClick(self, button, down)
+local function PopupButton_OnClick(self, button, down)
     if not getInfoValue(self.info, "noClickSound") then PlaySound(U_CHAT_SCROLL_BUTTON_SOUND) end
 
     local menuList = getInfoValue(self.info, "menuList")
@@ -139,7 +137,7 @@ local min = math.min
 local unpack = unpack
 local UIParent = UIParent
 ---@param self table
-local function Update(self)
+local function PopupButton_Update(self)
     local info = self.info
 
     self.arrow:SetShown(getInfoValue(info, "menuList") and true)
@@ -207,11 +205,11 @@ end
 
 ---@param self table
 ---@param elapsed number
-local function OnUpdate(self, elapsed)
+local function PopupButton_OnUpdate(self, elapsed)
     self.lastUpdate = (self.lastUpdate or 0) + elapsed
     if self.lastUpdate >= 0.2 then
         self.lastUpdate = 0
-        Update(self)
+        PopupButton_Update(self)
     end
 end
 
@@ -219,13 +217,15 @@ end
 ---@param info table
 ---@param parentList table
 ---@param parentTitle string
-local function SetInfo(self, info, parentList, parentTitle)
+local function PopupButton_SetInfo(self, info, parentList, parentTitle)
     self.info = info
     self.parentList = parentList
     self.parentTitle = parentTitle
 
-    Update(self)
+    PopupButton_Update(self)
 end
+
+local PopupButtonMixin = {}
 
 function PopupButtonMixin:OnLoad()
     self.OnLoad = nil
@@ -264,12 +264,12 @@ function PopupButtonMixin:OnLoad()
 
     self:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
 
-    self:SetScript("OnEnable", OnEnable)
-    self:SetScript("OnDisable", OnDisable)
-    self:SetScript("OnEnter", OnEnter)
-    self:SetScript("OnLeave", OnLeave)
-    self:SetScript("OnClick", OnClick)
-    self:SetScript("OnUpdate", OnUpdate)
+    self:SetScript("OnEnable", PopupButton_OnEnable)
+    self:SetScript("OnDisable", PopupButton_OnDisable)
+    self:SetScript("OnEnter", PopupButton_OnEnter)
+    self:SetScript("OnLeave", PopupButton_OnLeave)
+    self:SetScript("OnClick", PopupButton_OnClick)
+    self:SetScript("OnUpdate", PopupButton_OnUpdate)
 end
 
 local SEPARATOR_INFO = {
@@ -292,14 +292,14 @@ local titleButton = lib.titleButton
 titleButton:SetParent(frame)
 titleButton.layoutIndex = -1
 LibStub("LibJayMixin"):Mixin(titleButton, PopupButtonMixin)
-SetInfo(titleButton, TITLE_INFO)
+PopupButton_SetInfo(titleButton, TITLE_INFO)
 
 lib.backSepButton = lib.backSepButton or CreateFrame("Button", nil, frame)
 local backSepButton = lib.backSepButton
 backSepButton:SetParent(frame)
 backSepButton.layoutIndex = MAX_BUTTONS + 2
 LibStub("LibJayMixin"):Mixin(backSepButton, PopupButtonMixin)
-SetInfo(backSepButton, SEPARATOR_INFO)
+PopupButton_SetInfo(backSepButton, SEPARATOR_INFO)
 
 local BACK_INFO = {text = BACK, keepShownOnClick = true, notCheckable = true}
 
@@ -309,7 +309,7 @@ backButton:SetParent(frame)
 backButton.layoutIndex = MAX_BUTTONS + 3
 backButton.expand = true
 LibStub("LibJayMixin"):Mixin(backButton, PopupButtonMixin)
-SetInfo(backButton, BACK_INFO)
+PopupButton_SetInfo(backButton, BACK_INFO)
 
 lib.closeButton = lib.closeButton or CreateFrame("Button", nil, frame)
 local closeButton = lib.closeButton
@@ -317,7 +317,7 @@ closeButton:SetParent(frame)
 closeButton.layoutIndex = MAX_BUTTONS + 4
 closeButton.expand = true
 LibStub("LibJayMixin"):Mixin(closeButton, PopupButtonMixin)
-SetInfo(closeButton, {text = CLOSE, notCheckable = true, func = function() lib:Close() end})
+PopupButton_SetInfo(closeButton, {text = CLOSE, notCheckable = true, func = function() lib:Close() end})
 
 lib.buttons = lib.buttons or {}
 
@@ -333,7 +333,7 @@ end
 
 ---@param self table
 ---@param down boolean
-local function UpdateTexture(self, down)
+local function PopupScrollButton_UpdateTexture(self, down)
     if self:IsEnabled() then
         self.texture:SetTexture([[Interface\Buttons\Arrow-]] .. self:GetDirection() .. (down and [[-Down]] or [[-Up]]))
     else
@@ -343,24 +343,24 @@ end
 
 ---@param self table
 ---@param direction string | "Up" | "Down"
-local function SetDirection(self, direction)
+local function PopupScrollButton_SetDirection(self, direction)
     self.direction = direction == "Up" and "Up" or "Down"
-    UpdateTexture(self, self:GetButtonState() == "PUSHED")
+    PopupScrollButton_UpdateTexture(self, self:GetButtonState() == "PUSHED")
 end
 
 ---@param self table
-local function OnEnable(self) UpdateTexture(self) end
+local function PopupScrollButton_OnEnable(self) PopupScrollButton_UpdateTexture(self) end
 
 ---@param self table
-local function OnDisable(self) UpdateTexture(self) end
-
----@param self table
----@param button string
-local function OnMouseDown(self, button) UpdateTexture(self, true) end
+local function PopupScrollButton_OnDisable(self) PopupScrollButton_UpdateTexture(self) end
 
 ---@param self table
 ---@param button string
-local function OnMouseUp(self, button) UpdateTexture(self) end
+local function PopupScrollButton_OnMouseDown(self, button) PopupScrollButton_UpdateTexture(self, true) end
+
+---@param self table
+---@param button string
+local function PopupScrollButton_OnMouseUp(self, button) PopupScrollButton_UpdateTexture(self) end
 
 local PopupScrollButtonMixin = {}
 
@@ -373,10 +373,10 @@ function PopupScrollButtonMixin:OnLoad()
     self.texture:ClearAllPoints()
     self.texture:SetPoint("CENTER")
 
-    self:SetScript("OnEnable", OnEnable)
-    self:SetScript("OnDisable", OnDisable)
-    self:SetScript("OnMouseDown", OnMouseDown)
-    self:SetScript("OnMouseUp", OnMouseUp)
+    self:SetScript("OnEnable", PopupScrollButton_OnEnable)
+    self:SetScript("OnDisable", PopupScrollButton_OnDisable)
+    self:SetScript("OnMouseDown", PopupScrollButton_OnMouseDown)
+    self:SetScript("OnMouseUp", PopupScrollButton_OnMouseUp)
 end
 
 ---@return string direction
@@ -391,7 +391,7 @@ local scrollDownButton = lib.scrollDownButton
 LibStub("LibJayMixin"):Mixin(scrollUpButton, PopupScrollButtonMixin)
 LibStub("LibJayMixin"):Mixin(scrollDownButton, PopupScrollButtonMixin)
 
-SetDirection(scrollDownButton, "Down")
+PopupScrollButton_SetDirection(scrollDownButton, "Down")
 
 scrollUpButton.layoutIndex = 0
 scrollDownButton.layoutIndex = MAX_BUTTONS + 1
@@ -484,7 +484,7 @@ local function updateButtons()
         local button = buttons[i]
         local info = currentList[index]
 
-        SetInfo(button, info)
+        PopupButton_SetInfo(button, info)
         button:SetShown(info and true)
     end
 
