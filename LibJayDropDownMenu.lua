@@ -5,13 +5,11 @@ assert(LibStub, format("%s requires LibStub.", MAJOR))
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
-
 if not lib then return end
 
 local MAX_BUTTONS = 10
 
-lib.frame = lib.frame or
-                CreateFrame("Frame", nil, UIParent, "VerticalLayoutFrame")
+lib.frame = lib.frame or CreateFrame("Frame", nil, UIParent, "VerticalLayoutFrame")
 local frame = lib.frame
 
 frame:Hide()
@@ -32,7 +30,7 @@ frame:SetBackdrop({
     tileEdge = false,
     tileSize = 16,
     edgeSize = 8,
-    insets = {left = 2, right = 2, top = 2, bottom = 2}
+    insets = {left = 2, right = 2, top = 2, bottom = 2},
 })
 frame:SetBackdropColor(0, 0, 0, 0.8)
 frame:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
@@ -43,8 +41,7 @@ frame.gradient:SetPoint("TOPLEFT", 2, -2)
 frame.gradient:SetPoint("BOTTOMRIGHT", -2, 2)
 frame.gradient:SetTexture([[Interface\ChatFrame\ChatFrameBackground]])
 frame.gradient:SetBlendMode("ADD")
-frame.gradient:SetGradientAlpha("VERTICAL", 0.1, 0.1, 0.1, 0, 0.25, 0.25, 0.25,
-                                1)
+frame.gradient:SetGradientAlpha("VERTICAL", 0.1, 0.1, 0.1, 0, 0.25, 0.25, 0.25, 1)
 
 local open
 
@@ -71,8 +68,7 @@ local function UpdateFont(self)
             self.text:SetFontObject("GameFontHighlightSmallLeft")
         end
     else
-        self.text:SetFontObject(getInfoValue(self.info, "isTitle") and
-                                    "GameFontNormalSmallLeft" or
+        self.text:SetFontObject(getInfoValue(self.info, "isTitle") and "GameFontNormalSmallLeft" or
                                     "GameFontDisableSmallLeft")
     end
 end
@@ -103,9 +99,7 @@ local PlaySound = PlaySound
 ---@param button string
 ---@param down boolean
 local function OnClick(self, button, down)
-    if not getInfoValue(self.info, "noClickSound") then
-        PlaySound(U_CHAT_SCROLL_BUTTON_SOUND)
-    end
+    if not getInfoValue(self.info, "noClickSound") then PlaySound(U_CHAT_SCROLL_BUTTON_SOUND) end
 
     local menuList = getInfoValue(self.info, "menuList")
 
@@ -113,9 +107,7 @@ local function OnClick(self, button, down)
         local title = getInfoValue(self.info, "text")
         if title then
             local textColor = getInfoValue(self.info, "textColor")
-            if textColor then
-                title = "|c" .. textColor .. title .. "|r"
-            end
+            if textColor then title = "|c" .. textColor .. title .. "|r" end
         end
         open(menuList, title)
         return
@@ -169,8 +161,7 @@ local function Update(self)
     else
         self.text:SetText()
     end
-    self:SetWidth(
-        min(self.text:GetStringWidth() + 60, UIParent:GetWidth() * 0.5))
+    self:SetWidth(min(self.text:GetStringWidth() + 60, UIParent:GetWidth() * 0.5))
 
     local icon = getInfoValue(info, "icon")
     if icon then
@@ -182,9 +173,7 @@ local function Update(self)
             self.icon:SetTexCoord(0, 1, 0, 1)
         end
         self.icon:ClearAllPoints()
-        if getInfoValue(info, "iconExpandX") then
-            self.icon:SetPoint("LEFT")
-        end
+        if getInfoValue(info, "iconExpandX") then self.icon:SetPoint("LEFT") end
         self.icon:SetPoint("RIGHT")
         local iconHeight = getInfoValue(info, "iconHeight")
         iconHeight = (iconHeight and iconHeight <= 16) and iconHeight or 16
@@ -262,9 +251,7 @@ function PopupButtonMixin:OnLoad()
     self.icon:SetPoint("RIGHT")
     self.icon:SetSize(16, 16)
 
-    self.text = self.text or
-                    self:CreateFontString(nil, "ARTWORK",
-                                          "GameFontHighlightSmallLeft")
+    self.text = self.text or self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmallLeft")
     self.text:ClearAllPoints()
     self.text:SetPoint("LEFT", self.check, "RIGHT", 0, 0)
     self.text:SetPoint("RIGHT")
@@ -275,8 +262,7 @@ function PopupButtonMixin:OnLoad()
     self.arrow:SetTexture([[Interface\ChatFrame\ChatFrameExpandArrow]])
     self.arrow:SetSize(16, 16)
 
-    self:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]],
-                             "ADD")
+    self:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
 
     self:SetScript("OnEnable", OnEnable)
     self:SetScript("OnDisable", OnDisable)
@@ -292,18 +278,14 @@ local SEPARATOR_INFO = {
     iconExpandX = true,
     iconHeight = 8,
     notCheckable = true,
-    disabled = true
+    disabled = true,
 }
 
 local CopyTable = CopyTable
 ---@return info table
 function lib:GetSeparatorInfo() return CopyTable(SEPARATOR_INFO) end
 
-local TITLE_INFO = {
-    notCheckable = true,
-    disabled = true,
-    textColor = "ffffd100"
-}
+local TITLE_INFO = {notCheckable = true, disabled = true, textColor = "ffffd100"}
 
 lib.titleButton = lib.titleButton or CreateFrame("Button", nil, frame)
 local titleButton = lib.titleButton
@@ -335,8 +317,7 @@ closeButton:SetParent(frame)
 closeButton.layoutIndex = MAX_BUTTONS + 4
 closeButton.expand = true
 LibStub("LibJayMixin"):Mixin(closeButton, PopupButtonMixin)
-SetInfo(closeButton,
-        {text = CLOSE, notCheckable = true, func = function() lib:Close() end})
+SetInfo(closeButton, {text = CLOSE, notCheckable = true, func = function() lib:Close() end})
 
 lib.buttons = lib.buttons or {}
 
@@ -354,12 +335,9 @@ end
 ---@param down boolean
 local function UpdateTexture(self, down)
     if self:IsEnabled() then
-        self.texture:SetTexture([[Interface\Buttons\Arrow-]] ..
-                                    self:GetDirection() ..
-                                    (down and [[-Down]] or [[-Up]]))
+        self.texture:SetTexture([[Interface\Buttons\Arrow-]] .. self:GetDirection() .. (down and [[-Down]] or [[-Up]]))
     else
-        self.texture:SetTexture([[Interface\Buttons\Arrow-]] ..
-                                    self:GetDirection() .. [[-Disabled]])
+        self.texture:SetTexture([[Interface\Buttons\Arrow-]] .. self:GetDirection() .. [[-Disabled]])
     end
 end
 
@@ -389,8 +367,7 @@ local PopupScrollButtonMixin = {}
 function PopupScrollButtonMixin:OnLoad()
     self:SetHeight(16)
 
-    self:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]],
-                             "ADD")
+    self:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]], "ADD")
 
     self.texture = self.texture or self:CreateTexture(nil, "ARTWORK")
     self.texture:ClearAllPoints()
@@ -430,7 +407,7 @@ local ANCHORS = {
     ANCHOR_TOPRIGHT = {"BOTTOMRIGHT", "TOPRIGHT"},
     ANCHOR_BOTTOMRIGHT = {"TOPLEFT", "BOTTOMRIGHT"},
     ANCHOR_TOPLEFT = {"BOTTOMLEFT", "TOPLEFT"},
-    ANCHOR_BOTTOMLEFT = {"TOPRIGHT", "BOTTOMLEFT"}
+    ANCHOR_BOTTOMLEFT = {"TOPRIGHT", "BOTTOMLEFT"},
 }
 
 local error = error
@@ -442,26 +419,22 @@ local GetCursorPosition = GetCursorPosition
 ---@param ofsY number
 function lib:SetOwner(owner, anchor, ofsX, ofsY)
     if type(owner) ~= "table" then
-        error(format(
-                  "Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'owner' - table expected got %s",
-                  MAJOR, type(owner), 2))
+        error(format("Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'owner' - table expected got %s", MAJOR,
+                     type(owner), 2))
     end
     if type(anchor) ~= "string" then
-        error(format(
-                  "Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'anchor' - string expected got %s",
-                  MAJOR, type(anchor), 2))
+        error(format("Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'anchor' - string expected got %s", MAJOR,
+                     type(anchor), 2))
     end
     ofsX = ofsX or 0
     if type(ofsX) ~= "number" then
-        error(format(
-                  "Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'ofsX' - number expected got %s",
-                  MAJOR, type(ofsX), 2))
+        error(format("Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'ofsX' - number expected got %s", MAJOR,
+                     type(ofsX), 2))
     end
     ofsY = ofsY or 0
     if type(ofsY) ~= "number" then
-        error(format(
-                  "Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'ofsY' - number expected got %s",
-                  MAJOR, type(ofsY), 2))
+        error(format("Usage: %s:SetOwner(owner, anchor[, ofsX, ofsY]): 'ofsY' - number expected got %s", MAJOR,
+                     type(ofsY), 2))
     end
     self.owner = owner
 
@@ -488,9 +461,7 @@ end
 ---@return boolean isOwned
 function lib:IsOwned(owner)
     if type(owner) ~= "table" then
-        error(format(
-                  "Usage: %s:IsOwned(owner): 'owner' - table expected got %s",
-                  MAJOR, type(owner), 2))
+        error(format("Usage: %s:IsOwned(owner): 'owner' - table expected got %s", MAJOR, type(owner), 2))
     end
     return self.owner == owner
 end
@@ -575,13 +546,10 @@ end
 ---@param parentTitle string
 function lib:Open(menuList, title)
     if type(menuList) ~= "table" then
-        error(format(
-                  "Usage: %s:Open(menuList[, title]): 'menuList' - table expected got %s",
-                  MAJOR, type(menuList), 2))
+        error(format("Usage: %s:Open(menuList[, title]): 'menuList' - table expected got %s", MAJOR, type(menuList), 2))
     end
     if type(self:GetOwner()) ~= "table" then
-        error(format("Usage: %s:Open(menuList[, title]): Owner not set.",
-                     MAJOR, 2))
+        error(format("Usage: %s:Open(menuList[, title]): Owner not set.", MAJOR, 2))
     end
 
     self.menuList = menuList
@@ -601,9 +569,7 @@ function lib:IsOpen() return frame:IsShown() end
 
 frame:SetScript("OnHide", function(self) self.owner = nil end)
 local IsShiftKeyDown = IsShiftKeyDown
-frame:SetScript("OnMouseWheel", function(self, delta)
-    updateOffset(delta * (IsShiftKeyDown() and 10 or 1))
-end)
+frame:SetScript("OnMouseWheel", function(self, delta) updateOffset(delta * (IsShiftKeyDown() and 10 or 1)) end)
 frame:SetScript("OnKeyDown", function(self, key)
     self:SetPropagateKeyboardInput(false)
     if key == "ESCAPE" or key == "ENTER" then
@@ -631,7 +597,5 @@ frame:SetScript("OnUpdate", function(self, elapsed)
         self:Layout()
     end
 end)
-scrollUpButton:SetScript("OnClick",
-                         function(self, button, down) updateOffset(1) end)
-scrollDownButton:SetScript("OnClick",
-                           function(self, button, down) updateOffset(-1) end)
+scrollUpButton:SetScript("OnClick", function(self, button, down) updateOffset(1) end)
+scrollDownButton:SetScript("OnClick", function(self, button, down) updateOffset(-1) end)
